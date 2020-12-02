@@ -1,0 +1,130 @@
+# RTX1210 Rev.14.01.35 (Thu Dec 19 10:08:32 2019)
+# MAC Address : ac:44:f2:6f:4d:1b, ac:44:f2:6f:4d:1c, ac:44:f2:6f:4d:1d
+# Memory 256Mbytes, 3LAN, 1BRI
+# main:  RTX1210 ver=00 serial=S4H192286 MAC-Address=ac:44:f2:6f:4d:1b MAC-Address=ac:44:f2:6f:4d:1c MAC-Address=ac:44:f2:6f:4d:1d
+# Reporting Date: Jun 8 14:13:36 2020
+login password *
+administrator password encrypted *
+user attribute connection=serial,telnet,remote,ssh,sftp,http gui-page=dashboard,lan-map,config login-timer=300
+console prompt tsuchida_
+ip routing on
+ip routing process fast
+ip route default gateway pp 1
+ip route 172.31.254.0/24 gateway tunnel 1
+ip filter source-route on
+ip filter directed-broadcast on
+ip lan1 address 192.168.30.254/24
+ip lan1 proxyarp on
+switch control use lan1 on terminal=on
+pp select 1
+ pp keepalive interval 30 retry-interval=30 count=12
+ pppoe use lan2
+ pppoe auto connect on
+ pppoe auto disconnect off
+ pp auth accept pap chap
+ pp auth myname * *
+ ppp lcp mru on 1454
+ ppp ipcp ipaddress on
+ ppp ipcp msext on
+ ppp ccp type none
+ ip pp mtu 1454
+ ip pp secure filter in 11 12 201 202 203 200003 200020 200021 200022 200023 200024 200025 200030 200031 200032 200033 200034 200035 200036 200037 200099 200100 200101 200102 200103 200105 dynamic 200080 200081 200082 200098 200099
+ ip pp secure filter out 11 12 13 14 101 102 103 200013 200020 200021 200022 200023 200024 200025 200028 200029 200100 200101 200102 200103 200105 499998 499999 200099 dynamic 200080 200081 200082 200098 200099
+ url pp filter out 1 11 100
+ netvolante-dns use pp server=1 auto
+ pp enable 1
+tunnel select 1
+ tunnel name MedicalWith
+ description tunnel MedicalWith
+ ipsec tunnel 1
+  ipsec sa policy 1 1 esp aes-cbc sha-hmac
+  ipsec ike always-on 1 on
+  ipsec ike keepalive log 1 off
+  ipsec ike keepalive use 1 auto heartbeat
+  ipsec ike local address 1 192.168.30.254
+  ipsec ike nat-traversal 1 on
+  ipsec ike remote address 1 medicalwith.aa0.netvolante.jp
+  ipsec auto refresh 1 on
+ ip tunnel tcp mss limit auto
+ tunnel enable 1
+ip filter 11 pass * * udp,tcp 2002 *
+ip filter 12 pass * * udp,tcp * 2002
+ip filter 13 pass * 172.31.254.0/24 tcp * 5800,5911
+ip filter 14 pass 172.31.254.0/24 * tcp 5800,5911 *
+ip filter 101 pass * * udp * ntp
+ip filter 102 pass * * tcp * smtp
+ip filter 103 pass * * tcp * submission
+ip filter 201 pass * * udp ntp *
+ip filter 202 pass * * tcp smtp *
+ip filter 203 pass * * tcp submission *
+ip filter 200000 reject 10.0.0.0/8 * * * *
+ip filter 200001 reject 172.16.0.0/12 * * * *
+ip filter 200002 reject 192.168.0.0/16 * * * *
+ip filter 200003 reject 192.168.30.0/24 * * * *
+ip filter 200010 reject * 10.0.0.0/8 * * *
+ip filter 200011 reject * 172.16.0.0/12 * * *
+ip filter 200012 reject * 192.168.0.0/16 * * *
+ip filter 200013 reject * 192.168.30.0/24 * * *
+ip filter 200020 reject * * udp,tcp 135 *
+ip filter 200021 reject * * udp,tcp * 135
+ip filter 200022 reject * * udp,tcp netbios_ns-netbios_ssn *
+ip filter 200023 reject * * udp,tcp * netbios_ns-netbios_ssn
+ip filter 200024 reject * * udp,tcp 445 *
+ip filter 200025 reject * * udp,tcp * 445
+ip filter 200026 restrict * * tcpfin * www,21,nntp
+ip filter 200027 restrict * * tcprst * www,21,nntp
+ip filter 200028 reject * * udp,tcp https *
+ip filter 200029 reject * * udp,tcp * https
+ip filter 200030 pass * 192.168.30.0/24 icmp * *
+ip filter 200031 pass * 192.168.30.0/24 established * *
+ip filter 200032 pass * 192.168.30.0/24 tcp * ident
+ip filter 200033 pass * 192.168.30.0/24 tcp ftpdata *
+ip filter 200034 pass * 192.168.30.0/24 tcp,udp * domain
+ip filter 200035 pass * 192.168.30.0/24 udp domain *
+ip filter 200036 pass * 192.168.30.0/24 udp * ntp
+ip filter 200037 pass * 192.168.30.0/24 udp ntp *
+ip filter 200099 pass-log * * * * *
+ip filter 200100 pass * 192.168.30.254 udp * 500
+ip filter 200101 pass * 192.168.30.254 esp * *
+ip filter 200102 pass * 192.168.30.254 udp * 4500
+ip filter 200103 pass * 192.168.30.254 udp * 1701
+ip filter 200105 pass * * udp *
+ip filter 499998 pass 192.168.30.11-192.168.30.14,192.168.30.254 * * * *
+ip filter 499999 reject 192.168.30.1-192.168.30.253 * * * *
+ip filter 500000 restrict * * * * *
+ip filter dynamic 200080 * * ftp
+ip filter dynamic 200081 * * domain
+ip filter dynamic 200082 * * www
+ip filter dynamic 200083 * * smtp
+ip filter dynamic 200084 * * pop3
+ip filter dynamic 200098 * * tcp
+ip filter dynamic 200099 * * udp
+nat descriptor type 1000 masquerade
+nat descriptor address outer 1000 ipcp
+nat descriptor address inner 1000 auto
+nat descriptor masquerade incoming 1000 reject 
+nat descriptor masquerade static 1000 1 192.168.30.254 udp 500
+nat descriptor masquerade static 1000 2 192.168.30.254 esp
+nat descriptor masquerade static 1000 3 192.168.30.254 udp 4500
+nat descriptor masquerade static 1000 4 192.168.30.254 udp 1701
+ipsec auto refresh on
+ipsec transport 1 101 udp 1701
+ipsec transport 11 101 udp 1701
+url filter 1 pass ntp.nict.jp *
+url filter 11 pass netvolante *
+url filter 100 reject * *
+syslog notice on
+syslog debug on
+telnetd host any
+dhcp service server
+dhcp server rfc2131 compliant except remain-silent
+dhcp scope 1 192.168.100.2-192.168.100.191/24
+dns host lan1
+dns service recursive
+dns server pp 1
+dns server select 500001 pp 1 any . restrict pp 1
+dns private address spoof on
+schedule at 1 */Sun 00:00:00 * ntpdate ntp.nict.jp syslog
+alarm usbhost off
+alarm sd off
+statistics traffic on

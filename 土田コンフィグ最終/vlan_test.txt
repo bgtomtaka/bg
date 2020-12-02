@@ -1,0 +1,132 @@
+lan type lan1 port-based-ks8995m=divide-network
+vlan port mapping lan1.1 vlan1
+vlan port mapping lan1.2 vlan1
+vlan port mapping lan1.3 vlan1
+vlan port mapping lan1.4 vlan1
+vlan port mapping lan1.5 vlan2
+vlan port mapping lan1.6 vlan2
+vlan port mapping lan1.7 vlan2
+vlan port mapping lan1.8 vlan2
+
+ip vlan1 address 192.168.29.254/24
+ip vlan2 address 172.31.255.1/24
+
+
+ip route 192.168.29.0/24 gateway 172.31.255.1
+ip route 192.168.20.0/24 gateway 192.168.30.234
+
+security class 1 on on off
+console prompt musashino_
+ip routing on
+ip routing process fast
+ip route default gateway pp 1
+ip filter source-route on
+ip filter directed-broadcast on
+vlan port mapping lan1.1 vlan1
+vlan port mapping lan1.2 vlan1
+vlan port mapping lan1.3 vlan1
+vlan port mapping lan1.4 vlan1
+vlan port mapping lan1.5 vlan2
+vlan port mapping lan1.6 vlan2
+vlan port mapping lan1.7 vlan2
+vlan port mapping lan1.8 vlan2
+lan type lan1 port-based-option=divide-network
+ip vlan1 address 192.168.29.254/24
+ip vlan1 proxyarp on
+ip vlan2 address 172.31.255.1/24
+pp select 1
+ pp keepalive interval 30 retry-interval=30 count=12
+ pp always-on on
+ pppoe use lan2
+ pppoe auto connect on
+ pppoe auto disconnect off
+ pp auth accept pap chap
+ pp auth myname test test@anonimous.com
+ ppp lcp mru on 1454
+ ppp ipcp ipaddress on
+ ppp ipcp msext on
+ ppp ccp type none
+ ip pp mtu 1454
+ ip pp secure filter in 11 12 13 14 15 16 17 21 31 200003 200020 200021 200022 200023 200024 200025 200030 200031 200032 200033 200034 200035 200036 200037 200099 200100 200101 200102 200103 200105 dynamic 200080 200081 200082 200098 200099
+ ip pp secure filter out 11 12 13 14 200013 200020 200021 200022 200023 200024 200025 200100 200101 200102 200103 200105 499998 499999 200099 dynamic 200080 200081 200082 200098 200099
+ ip pp nat descriptor 1000
+ url pp filter out 1 11 100
+ pp enable 1
+ip filter 11 pass * * udp,tcp 2002 *
+ip filter 12 pass * * udp,tcp * 2002
+ip filter 13 pass * 172.31.254.0/24 tcp * 5800,5911
+ip filter 14 pass 172.31.254.0/24 * tcp 5800,5911 *
+ip filter 15 pass * 192.168.29.0/24 tcp * https
+ip filter 16 pass * 192.168.29.0/24 tcp * 3389
+ip filter 17 pass * 192.168.29.0/24 tcp,udp * 5938
+ip filter 21 pass 192.168.29.0/24 172.31.255.0/24 * * *
+ip filter 31 pass 172.31.255.0/24 192.168.29.0/24 * * *
+ip filter 200000 reject 10.0.0.0/8 * * * *
+ip filter 200001 reject 172.16.0.0/12 * * * *
+ip filter 200002 reject 192.168.0.0/16 * * * *
+ip filter 200003 reject 192.168.29.0/24 * * * *
+ip filter 200010 reject * 10.0.0.0/8 * * *
+ip filter 200011 reject * 172.16.0.0/12 * * *
+ip filter 200012 reject * 192.168.0.0/16 * * *
+ip filter 200013 reject * 192.168.29.0/24 * * *
+ip filter 200020 reject * * udp,tcp 135 *
+ip filter 200021 reject * * udp,tcp * 135
+ip filter 200022 reject * * udp,tcp netbios_ns-netbios_ssn *
+ip filter 200023 reject * * udp,tcp * netbios_ns-netbios_ssn
+ip filter 200024 reject * * udp,tcp 445 *
+ip filter 200025 reject * * udp,tcp * 445
+ip filter 200026 restrict * * tcpfin * www,21,nntp
+ip filter 200027 restrict * * tcprst * www,21,nntp
+ip filter 200030 pass * 192.168.29.0/24 icmp * *
+ip filter 200031 pass * 192.168.29.0/24 established * *
+ip filter 200032 pass * 192.168.29.0/24 tcp * ident
+ip filter 200033 pass * 192.168.29.0/24 tcp ftpdata *
+ip filter 200034 pass * 192.168.29.0/24 tcp,udp * domain
+ip filter 200035 pass * 192.168.29.0/24 udp domain *
+ip filter 200036 pass * 192.168.29.0/24 udp * ntp
+ip filter 200037 pass * 192.168.29.0/24 udp ntp *
+ip filter 200099 pass-log * * * * *
+ip filter 200100 pass * 192.168.29.254 udp * 500
+ip filter 200101 pass * 192.168.29.254 esp * *
+ip filter 200102 pass * 192.168.29.254 udp * 4500
+ip filter 200105 pass * * udp *
+ip filter 499998 pass 192.168.29.241-192.168.29.254 * * * *
+ip filter 499999 reject 192.168.27.240-192.168.29.1 * * * *
+ip filter 500000 restrict * * * * *
+ip filter dynamic 200080 * * ftp
+ip filter dynamic 200081 * * domain
+ip filter dynamic 200082 * * www
+ip filter dynamic 200083 * * smtp
+ip filter dynamic 200084 * * pop3
+ip filter dynamic 200098 * * tcp
+ip filter dynamic 200099 * * udp
+nat descriptor type 1000 masquerade
+nat descriptor address outer 1000 ipcp
+nat descriptor address inner 1000 auto
+nat descriptor masquerade incoming 1000 reject 
+nat descriptor masquerade static 1000 1 192.168.29.254 udp 500
+nat descriptor masquerade static 1000 2 192.168.29.254 esp
+nat descriptor masquerade static 1000 3 192.168.29.254 udp 4500
+url filter 1 pass ntp.nict.jp *
+url filter 11 pass netvolante *
+url filter 100 reject * *
+syslog notice on
+syslog debug on
+telnetd service on
+telnetd host any
+dhcp service server
+dhcp server rfc2131 compliant except remain-silent
+dhcp scope 1 192.168.29.11-192.168.29.20/24
+dns server pp 1
+dns private address spoof on
+schedule at 1 */Sun 00:00:00 * ntpdate ntp.nict.jp syslog
+httpd service on
+httpd host any
+alarm usbhost off
+alarm sd off
+sshd service on
+sshd host any
+sshd host key generate *
+external-memory boot permit off
+usbhost use off
+sd use off
